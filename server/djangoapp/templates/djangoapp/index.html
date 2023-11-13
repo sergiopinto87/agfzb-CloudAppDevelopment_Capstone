@@ -15,11 +15,25 @@
 
     <body>
     <!--Add a nav bar here -->
-        <nav> 
-            <nav>
+        <nav>
+            <div>
                 <a href="about">About us</a>
                 <a href="contact">Contact us</a>
-              </nav>
+                <form method="post" action="{% url 'djangoapp:login' %}">
+                        {% csrf_token %}
+                        
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" name="username" required>
+                        
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" required>
+                            
+                            <button type="submit">Login</button>
+                        
+                            <a href="{% url 'djangoapp:signup' %}">Sign Up</a>
+                </form>
+            </div>    
+        </nav>
     <!--Add a dealer table here -->
 
     </body>

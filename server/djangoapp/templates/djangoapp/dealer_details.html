@@ -9,7 +9,28 @@
 
     <body>
 
+        {% if user.is_authenticated %}
+        <div class="rightalign">
+            <div class="dropdown">
+                <button class="dropbtn">{{user.first_name}}</button>
+                <div class="dropdown-content">
+                    <a href="{% url 'dealer_details:logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="rightalign">
+            <div class="dropdown">
+                <button class="dropbtn">Visitor</button>
+                <div class="dropdown-content">
+                    <a href="{% url 'dealer_details:login' %}">Login</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    
     <!--Add a nav bar here -->
+
 
     <!-- Add reviews as cards -->
 
