@@ -1,5 +1,15 @@
-from django.db import models
+import sys
 from django.utils.timezone import now
+try:
+    from django.db import models
+except Exception:
+    print("There was an error loading django modules. Do you have django installed?")
+    sys.exit()
+
+from django.conf import settings
+import uuid
+from datetime import datetime
+from django.core.validators import MinValueValidator
 
 
 # Create your models here.
@@ -12,10 +22,10 @@ from django.utils.timezone import now
 
 class CarMake(models.Model):
     name = models.CharField(primary_key=True, max_length=100)
-    description = models.EmailField(max_length=100)
+    description = models.CharField(max_length=100)
     phone = models.CharField(max_length=20)
     address = models.CharField(max_length=200)
-    social_media = models.CharField(max_length=100, blank=True)
+    social_media = models.CharField(max_length=100)
 
     def __str__(self):
         return str(self.name)
@@ -39,11 +49,11 @@ class CarModel(models.Model):
         ('wagon', 'Wagon'),
     ]
 
-    dealer_id = models.AutoField(primary_key=True)
-    carmake = models.ForeignKey(CarMake, on_delete=models.CASCADE)
+    dealer_id = models.IntegerField(primary_key=True)
+    car_maker = models.ForeignKey(CarMake, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=15, choices=TYPE_CHOICES)
-    Year = models.DateField()
+    year = models.IntegerField(default=datetime.now().year, validators=[MinValueValidator(1900)])
 
     def __str__(self):
         return str(self.name)
