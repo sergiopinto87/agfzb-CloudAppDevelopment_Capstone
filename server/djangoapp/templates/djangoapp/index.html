@@ -52,6 +52,37 @@
 
     <!--Add a dealer table here -->
 
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Dealer ID</th>
+                <th>Full Name</th>
+                <th>Short Name</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dealer in dealerships %}
+            <tr>
+                <td>{{ dealer.id }}</td>
+                <td>{{ dealer.full_name }}</td>
+                <td>{{ dealer.short_name }}</td>
+                <td>{{ dealer.address }}</td>
+                <td>{{ dealer.city }}</td>
+                <td>{{ dealer.st }}</td>
+                <td>{{ dealer.zip }}</td>
+                <td>{{ dealer.lat }}</td>
+                <td>{{ dealer.long }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
     </body>
 
 </html>
