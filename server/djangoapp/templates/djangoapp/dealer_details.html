@@ -2,37 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dealership Review</title>
     {% load static %}
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
+
 </head>
 
     <body>
-
-        {% if user.is_authenticated %}
-        <div class="rightalign">
-            <div class="dropdown">
-                <button class="dropbtn">{{user.first_name}}</button>
-                <div class="dropdown-content">
-                    <a href="{% url 'dealer_details:logout' %}">Logout</a>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="rightalign">
-            <div class="dropdown">
-                <button class="dropbtn">Visitor</button>
-                <div class="dropdown-content">
-                    <a href="{% url 'dealer_details:login' %}">Login</a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    
+   
     <!--Add a nav bar here -->
+    <nav class="navbar navbar-light bg-light">
 
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Home</a>
+                <a class="navbar-brand" href="{% url 'djangoapp:about' %}">About us</a>
+                <a class="navbar-brand" href="{% url 'djangoapp:contact' %}">Contact us</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                    <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Username" name="username" >
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
+                            <button class="btn btn-primary" type="submit">Login</button>
+                            <a class="btn btn-link" href="{% url 'djangoapp:signup' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
 
     <!-- Add reviews as cards -->
+
+    <div class="container mt-4">
+        <div class="row">
+            {% for review in reviews %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ review.name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ review.purchase_date }}</h6>
+                            <p class="card-text">{{ review.review }} {{ review.sentiment }}</p>
+                            <p class="card-text"><small>Car: {{ review.car_make }} {{ review.car_model }}, {{ review.car_year }}</small></p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No reviews available.</p>
+            {% endfor %}
+        </div>
+    </div>
 
     </body>
 

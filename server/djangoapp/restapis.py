@@ -1,7 +1,10 @@
 import requests
 import json
-from .models import CarDealer
+from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
+from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
 
 # Create a `get_request` to make HTTP GET requests
@@ -57,6 +60,30 @@ def get_dealers_from_cf(url, **kwargs):
 # - Call get_request() with specified arguments
 # - Parse JSON results into a DealerView object list
 
+def get_dealer_by_id_from_cf(url, dealer_id):
+    results = []
+    # Call get_request with a URL parameter
+    json_result = get_request(url)
+    if json_result:
+        # Get the row list in JSON as reviews
+        reviews = json_result
+        # For each review object
+        for review in reviews:
+            # Get its content in `doc` object
+            review_doc = review
+            if review_doc.get("id") == dealer_id:
+                # Create a DealerReview object with values in `doc` object
+                sentiment = analyze_sentiment(review_doc.get("review"))
+                review_obj = DealerReview (dealership=review_doc["dealership"], name=review_doc["name"], purchase=review_doc["purchase"],
+                                    review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
+                                    car_model=review_doc["car_model"],
+                                    car_year=review_doc["car_year"], sentiment=sentiment, id=review_doc["id"])
+                results.append(review_obj)
+            else:
+                continue
+
+    return results
+
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 # def analyze_review_sentiments(text):
@@ -64,4 +91,34 @@ def get_dealers_from_cf(url, **kwargs):
 # - Get the returned sentiment label such as Positive or Negative
 
 
+def analyze_sentiment(text):
+    # Replace 'your_api_key' and 'your_service_url' with your IBM Watson NLU credentials
+    api_key = '64YyezcbQGhvhRs0x2F_5x4YyG6iWZlm4Q33sPigpVfU'
+    service_url = 'https://api.au-syd.natural-language-understanding.watson.cloud.ibm.com/instances/40f86668-a223-4aa4-bbce-ee72bffe569b'
+
+    authenticator = IAMAuthenticator(api_key)
+    natural_language_understanding = NaturalLanguageUnderstandingV1(
+        version='2021-08-01',
+        authenticator=authenticator
+    )
+
+    natural_language_understanding.set_service_url(service_url)
+
+    try:
+        # Analyze the sentiment
+        response = natural_language_understanding.analyze(
+            text=text,
+            features=Features(sentiment=SentimentOptions())
+        ).get_result()
+
+        # Extract the sentiment label
+        sentiment_label = response['sentiment']['document']['label']
+        results = sentiment_label.get("sentiment")
+        return results
+        
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+# Example usage
 
