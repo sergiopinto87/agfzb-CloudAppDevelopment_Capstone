@@ -117,7 +117,7 @@ def add_review(request, dealer_id):
     if request.method == "POST":
         if request.user.is_authenticated:
             url = "https://serrique-5000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
-            response = post_request(url, json_payload, dealerId=dealer_id)
+            response = post_request(url, json_payload, dealer_id=dealer_id)
             # Handle the response (e.g., print it, render it, etc.)
             return HttpResponse(response)
 

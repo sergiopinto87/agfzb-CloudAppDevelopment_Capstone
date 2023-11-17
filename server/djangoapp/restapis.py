@@ -44,15 +44,22 @@ def get_request(url, **kwargs):
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 
-def post_request(url, json_payload, **kwargs):
+def post_request(url, json_payload, dealer_id, **kwargs):
     review = {
         "time": datetime.utcnow().isoformat(),
-        "dealership": dealer_id,
+        "id": id, 
+        "name": name, 
+        "dealership": dealer_id, 
         "review": review, 
+        "purchase": purchase, 
+        "purchase_date": purchase_date, 
+        "car_make": car_make, 
+        "car_model": car_model, 
+        "car_year": car_year
             }
 
     json_payload = {"review": review}
-    response = requests.post(url, params=kwargs, json=payload)
+    response = requests.post(url, params=kwargs, json=json_payload)
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
 # def get_dealers_from_cf(url, **kwargs):
