@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
-from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf
+from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -112,3 +112,14 @@ def get_dealer_details(request, dealer_id):
 # def add_review(request, dealer_id):
 # ...
 
+
+def add_review(request, dealer_id):
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            url = "https://serrique-5000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
+            response = post_request(url, json_payload, dealerId=dealer_id)
+            # Handle the response (e.g., print it, render it, etc.)
+            return HttpResponse(response)
+
+        else:
+            return HttpResponse("User is not authenticated")

@@ -7,27 +7,52 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
 
+
 # Create a `get_request` to make HTTP GET requests
 # e.g., response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
 #                                     auth=HTTPBasicAuth('apikey', api_key))
 def get_request(url, **kwargs):
-    print(kwargs)
-    print("GET from {} ".format(url))
+    # Construct params from kwargs
+    api_key= "xK2-SbF9cArNQOnJdufIAKbTGoF6U2U2RM8GCS1RTwOw"
+    params = {
+        "text": kwargs.get("text"),
+        "version": kwargs.get("version"),
+        "features": kwargs.get("features"),
+        "return_analyzed_text": kwargs.get("return_analyzed_text")
+    }
+
+    headers = {'Content-Type': 'application/json'}
+
+    # Basic authentication if api_key is provided
+    auth = HTTPBasicAuth('apikey', api_key)
+
     try:
-        # Call get method of requests library with URL and parameters
-        response = requests.get(url, headers={'Content-Type': 'application/json'},
-                                    params=kwargs)
-    except:
-        # If any error occurs
-        print("Network exception occurred")
+        response = requests.get(url, params=params, headers=headers, auth=auth)
+    except requests.exceptions.RequestException as e:
+        print("Network exception occurred: {}".format(e))
+        return None
+
     status_code = response.status_code
-    print("With status {} ".format(status_code))
-    json_data = json.loads(response.text)
-    return json_data
+    print("GET from {} with status {}".format(url, status_code))
+
+    try:
+        return response.json()
+    except ValueError:
+        print("Response content is not valid JSON")
+        return None
 
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 
+def post_request(url, json_payload, **kwargs):
+    review = {
+        "time": datetime.utcnow().isoformat(),
+        "dealership": dealer_id,
+        "review": review, 
+            }
+
+    json_payload = {"review": review}
+    response = requests.post(url, params=kwargs, json=payload)
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
 # def get_dealers_from_cf(url, **kwargs):
@@ -71,13 +96,13 @@ def get_dealer_by_id_from_cf(url, dealer_id):
         for review in reviews:
             # Get its content in `doc` object
             review_doc = review
-            if review_doc.get("id") == dealer_id:
+            if review_doc.get("dealership") == dealer_id:
                 # Create a DealerReview object with values in `doc` object
                 sentiment = analyze_sentiment(review_doc.get("review"))
                 review_obj = DealerReview (dealership=review_doc["dealership"], name=review_doc["name"], purchase=review_doc["purchase"],
-                                    review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
-                                    car_model=review_doc["car_model"],
-                                    car_year=review_doc["car_year"], sentiment=sentiment, id=review_doc["id"])
+                            review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
+                            car_model=review_doc["car_model"],
+                            car_year=review_doc["car_year"], sentiment=sentiment, id=review_doc["id"])
                 results.append(review_obj)
             else:
                 continue
@@ -113,8 +138,7 @@ def analyze_sentiment(text):
 
         # Extract the sentiment label
         sentiment_label = response['sentiment']['document']['label']
-        results = sentiment_label.get("sentiment")
-        return results
+        return sentiment_label
         
     except Exception as e:
         print(f"Error: {e}")
