@@ -45,21 +45,8 @@ def get_request(url, **kwargs):
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 
 def post_request(url, json_payload, dealer_id, **kwargs):
-    review = {
-        "time": datetime.utcnow().isoformat(),
-        "id": id, 
-        "name": name, 
-        "dealership": dealer_id, 
-        "review": review, 
-        "purchase": purchase, 
-        "purchase_date": purchase_date, 
-        "car_make": car_make, 
-        "car_model": car_model, 
-        "car_year": car_year
-            }
-
-    json_payload = {"review": review}
-    response = requests.post(url, params=kwargs, json=json_payload)
+    response = requests.post(url, json=json_payload, **kwargs)
+    return response
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
 # def get_dealers_from_cf(url, **kwargs):
@@ -151,5 +138,27 @@ def analyze_sentiment(text):
         print(f"Error: {e}")
         return None
 
-# Example usage
+def get_cars(url, dealer_id):
+    results = []
+    # Call get_request with a URL parameter
+    json_result = get_request(url)
+    if json_result:
+        # Get the row list in JSON as reviews
+        reviews = json_result
+        # For each review object
+        for review in reviews:
+            # Get its content in `doc` object
+            review_doc = review
+            if review_doc.get("dealership") == dealer_id:
+                # Create a DealerReview object with values in `doc` object
+                sentiment = analyze_sentiment(review_doc.get("review"))
+                review_obj = DealerReview (dealership=review_doc["dealership"], name=review_doc["name"], purchase=review_doc["purchase"],
+                            review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
+                            car_model=review_doc["car_model"],
+                            car_year=review_doc["car_year"], sentiment=sentiment, id=review_doc["id"])
+                results.append(review_obj)
+            else:
+                continue
+
+    return results
 
