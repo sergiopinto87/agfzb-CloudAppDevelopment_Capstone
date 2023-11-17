@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
@@ -114,12 +114,30 @@ def get_dealer_details(request, dealer_id):
 
 
 def add_review(request, dealer_id):
-    if request.method == "POST":
-        if request.user.is_authenticated:
-            url = "https://serrique-5000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
-            response = post_request(url, json_payload, dealer_id=dealer_id)
-            # Handle the response (e.g., print it, render it, etc.)
-            return HttpResponse(response)
+    if request.user.is_authenticated:
+        if request.method == "GET":
+            # Fetch cars based on dealer_id
+            cars = get_cars(dealer_id)  # Implement this function
+            return render(request, "djangoapp/add_review.html", {"cars": cars, "dealer_id": dealer_id})
 
-        else:
-            return HttpResponse("User is not authenticated")
+        elif request.method == "POST":
+            review = {
+                "time": datetime.datetime.utcnow().isoformat(),
+                "dealership": dealer_id,
+                "review": request.POST.get("content"),
+                "purchase": request.POST.get("purchasecheck") == "on",
+                "purchase_date": request.POST.get("purchasedate"),
+                "car_make": request.POST.get("car_make"),  # You need to adjust these fields
+                "car_model": request.POST.get("car_model"),
+                "car_year": request.POST.get("car_year")
+            }
+
+            json_payload = {"review": review}
+            url = "https://serrique-5000.theiadocker.../reviews/post"
+            response = post_request(url, json_payload, dealer_id=dealer_id)
+            # Optionally handle the response here
+
+            return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
+
+    else:
+        return HttpResponse("User is not authenticated")
