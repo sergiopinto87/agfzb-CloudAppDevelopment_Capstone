@@ -8,6 +8,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
+    
 
 </head>
     <body>
@@ -46,7 +47,7 @@
     </nav>
 
     <!-- Stylize review form --> 
-    <div class= "container">
+    <div class= "container mt-4">
         <form action="{% url 'djangoapp:add_review' dealer_id %}" method="post">
             {% csrf_token %}
             {% for car in cars %}
@@ -77,24 +78,23 @@
 
                 <!-- Date Input for Purchase Date -->
                 <div class="form-group">
-                    <label for="purchasedate">Select your Purchase Date:</label>
-                    <input class="date-own form-control" type="text" name="purchasedate" id="purchasedate">
+                    <label>Select your Purchase Date:</label>
+                    <input class="form-control" type="date" name="purchasedate" id="purchasedate"  style="width: auto;">
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary">Submit Review</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
             {% endfor %}
         </form>
     </div>
 
     <!-- Datepicker Script -->
+    {{ form.date }}
     <script type="text/javascript">
-        $(document).ready(function(){
-            $('.date-own').datepicker({
-                format: 'mm/dd/yyyy'
-                });
-            });
-    </script>
+        $('.purchasedate').datepicker({
+           format: 'mm/dd/yyyy'
+         });
+   </script>
     <!-- Include other necessary scripts like jQuery for the datepicker -->
 
 
