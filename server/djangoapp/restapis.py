@@ -155,4 +155,3 @@ def get_cars(dealer_id, url):
             continue
 
     return results
-
