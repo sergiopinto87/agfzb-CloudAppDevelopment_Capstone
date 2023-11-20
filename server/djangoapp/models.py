@@ -10,6 +10,7 @@ from django.conf import settings
 import uuid
 from datetime import datetime
 from django.core.validators import MinValueValidator
+from django import forms
 
 
 # Create your models here.
@@ -128,3 +129,7 @@ class CarData:
 
     def __str__(self):
         return "Car: " + self.name
+
+
+class DateForm(forms.Form):
+    date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M'])
