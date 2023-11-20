@@ -122,26 +122,36 @@ def add_review(request, dealer_id):
             return render(request, "djangoapp/add_review.html", {"cars": cars, "dealer_id": dealer_id})
 
         elif request.method == "POST":
-            car = request.POST.get("car")
-            car_model, car_make, car_year = car.split('-')
-            review = {
-                "time": datetime.datetime.utcnow().isoformat(),
-                "name": 
-                "dealership": dealer_id,
-                "review": request.POST.get("content"),
-                "purchase": request.POST.get("purchasecheck") == "on",
-                "purchase_date": request.POST.get("purchasedate"),
-                "car_make": car_model,
-                "car_model": car_make,
-                "car_year": car_year
-            }
+            #try:
+                car_make = request.POST.get("car_make")
+                car_model = request.POST.get("car_model")
+                car_year = request.POST.get("car_year")
 
-            json_payload = {"review": review}
-            url = "https://serrique-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
-            response = post_request(url, json_payload, dealer_id=dealer_id)
-            # Optionally handle the response here
+                review = {
+                    #"time": datetime.datetime.utcnow().isoformat(),
+                    "name": request.user.get_full_name(),  # Assuming get_full_name() method is available
+                    "dealership": dealer_id,
+                    "review": request.POST.get("content"),
+                    "purchase": request.POST.get("purchasecheck") == "on",
+                    "purchase_date": request.POST.get("purchasedate"),
+                    "car_make": car_make,
+                    "car_model": car_model,
+                    "car_year": car_year
+                }
 
-            return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
+                json_payload = {"review": review}
+                url = "https://serrique-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
+                response, success = post_request(url, json_payload, dealer_id=dealer_id)
+                # Optionally handle the response here
+                
+                if success:
+                    # Handle a successful submission
+                    messages.success(request, response)
+                else:
+                    # Handle a failed submission
+                    messages.error(request, response)
 
-    else:
-        return HttpResponse("User is not authenticated")
+                return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
+
+        else:
+            return HttpResponse("User is not authenticated")

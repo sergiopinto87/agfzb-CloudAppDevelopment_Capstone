@@ -63,14 +63,14 @@
                 <div class="form-group form-check">
                     
                     <input type="checkbox" class="form-check-input" id="purchasecheck" name="purchasecheck">
-                    <label class="form-check-label" for="purchasecheck">Has purchased the car from {{ car.dealer_name }} </label>
+                    <label class="form-check-label" style="font-weight: bold;" for="purchasecheck">Has purchased the car from {{ car.dealer_name }} </label>
                 </div>
 
                 <!-- Dropdown for Car Selection -->
                 <div class="form-group">
-                    <label for="car">Select your car (model-make-year):</label>
+                    <label for="car" style="font-weight: bold;">Select your car (model-make-year):</label>
                     <select name="car" id="car" class="form-select" required>
-                        
+                        <option value="" disabled selected>Select...</option>
                         <option value="{{ car.id }}">{{ car.name }}-{{ car.car_maker }}-{{ car.year }}</option>
                         
                     </select>
@@ -78,7 +78,7 @@
 
                 <!-- Date Input for Purchase Date -->
                 <div class="form-group">
-                    <label>Select your Purchase Date:</label>
+                    <label style="font-weight: bold;">Select your Purchase Date:</label>
                     <input class="form-control" type="date" name="purchasedate" id="purchasedate"  style="width: auto;">
                 </div>
 

@@ -40,8 +40,17 @@ def get_request(url, **kwargs):
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 
 def post_request(url, json_payload, dealer_id, **kwargs):
-    response = requests.post(url, json=json_payload, **kwargs)
-    return response
+    try:
+        response = requests.post(url, json=json_payload, **kwargs)
+
+        # Check if the request was successful
+        if 200 <= response.status_code < 300:
+            return "Submission successful", True
+        else:
+            return f"Failed to submit. Status code: {response.status_code}", False
+    except requests.RequestException as e:
+        # Handle any exceptions that occur during the request
+        return f"An error occurred: {str(e)}", False
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
 # def get_dealers_from_cf(url, **kwargs):
