@@ -122,15 +122,18 @@ def add_review(request, dealer_id):
             return render(request, "djangoapp/add_review.html", {"cars": cars, "dealer_id": dealer_id})
 
         elif request.method == "POST":
+            car = request.POST.get("car")
+            car_model, car_make, car_year = car.split('-')
             review = {
                 "time": datetime.datetime.utcnow().isoformat(),
+                "name": 
                 "dealership": dealer_id,
                 "review": request.POST.get("content"),
                 "purchase": request.POST.get("purchasecheck") == "on",
                 "purchase_date": request.POST.get("purchasedate"),
-                "car_make": request.POST.get("car_make"),  # You need to adjust these fields
-                "car_model": request.POST.get("car_model"),
-                "car_year": request.POST.get("car_year")
+                "car_make": car_model,
+                "car_model": car_make,
+                "car_year": car_year
             }
 
             json_payload = {"review": review}
