@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
-from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, post_request
+from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, post_request, get_cars
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -82,7 +82,7 @@ def registration_request(request):
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
     if request.method == "GET":
-        url = "https://serrique-3000.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        url = "https://serrique-3000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         # Concat all dealer's short name
@@ -98,7 +98,7 @@ def get_dealerships(request):
 # ...
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
-        url = "https://serrique-3001.theiadocker-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/get"
+        url = "https://serrique-3001.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/get"
         # Get reviews from the URL
         reviews = get_dealer_by_id_from_cf(url, dealer_id)
         # Concat all reviews's id
@@ -117,7 +117,8 @@ def add_review(request, dealer_id):
     if request.user.is_authenticated:
         if request.method == "GET":
             # Fetch cars based on dealer_id
-            cars = get_cars(dealer_id)  # Implement this function
+            url = "https://serrique-3000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+            cars = get_cars(dealer_id, url)  # Implement this function
             return render(request, "djangoapp/add_review.html", {"cars": cars, "dealer_id": dealer_id})
 
         elif request.method == "POST":
@@ -133,7 +134,7 @@ def add_review(request, dealer_id):
             }
 
             json_payload = {"review": review}
-            url = "https://serrique-5000.theiadocker.../reviews/post"
+            url = "https://serrique-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
             response = post_request(url, json_payload, dealer_id=dealer_id)
             # Optionally handle the response here
 

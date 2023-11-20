@@ -1,6 +1,6 @@
 import requests
 import json
-from .models import CarDealer, DealerReview
+from .models import CarDealer, DealerReview, CarModel, CarData
 from requests.auth import HTTPBasicAuth
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
@@ -14,13 +14,7 @@ from ibm_watson.natural_language_understanding_v1 import Features, SentimentOpti
 def get_request(url, **kwargs):
     # Construct params from kwargs
     api_key= "xK2-SbF9cArNQOnJdufIAKbTGoF6U2U2RM8GCS1RTwOw"
-    params = {
-        "text": kwargs.get("text"),
-        "version": kwargs.get("version"),
-        "features": kwargs.get("features"),
-        "return_analyzed_text": kwargs.get("return_analyzed_text")
-    }
-
+    params = {key: kwargs.get(key) for key in ["text", "version", "features", "return_analyzed_text"]}
     headers = {'Content-Type': 'application/json'}
 
     # Basic authentication if api_key is provided
@@ -28,6 +22,7 @@ def get_request(url, **kwargs):
 
     try:
         response = requests.get(url, params=params, headers=headers, auth=auth)
+        
     except requests.exceptions.RequestException as e:
         print("Network exception occurred: {}".format(e))
         return None
@@ -65,7 +60,7 @@ def get_dealers_from_cf(url, **kwargs):
             # Get its content in `doc` object
             dealer_doc = dealer
             # Create a CarDealer object with values in `doc` object
-            dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
+            dealer_obj = CarDealer (address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
                                    id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],
                                    short_name=dealer_doc["short_name"],
                                    st=dealer_doc["st"], zip=dealer_doc["zip"])
@@ -138,27 +133,26 @@ def analyze_sentiment(text):
         print(f"Error: {e}")
         return None
 
-def get_cars(url, dealer_id):
-    results = []
-    # Call get_request with a URL parameter
+def get_cars(dealer_id, url):
+    
     json_result = get_request(url)
-    if json_result:
-        # Get the row list in JSON as reviews
-        reviews = json_result
-        # For each review object
-        for review in reviews:
-            # Get its content in `doc` object
-            review_doc = review
-            if review_doc.get("dealership") == dealer_id:
-                # Create a DealerReview object with values in `doc` object
-                sentiment = analyze_sentiment(review_doc.get("review"))
-                review_obj = DealerReview (dealership=review_doc["dealership"], name=review_doc["name"], purchase=review_doc["purchase"],
-                            review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
-                            car_model=review_doc["car_model"],
-                            car_year=review_doc["car_year"], sentiment=sentiment, id=review_doc["id"])
-                results.append(review_obj)
-            else:
-                continue
+    dealers = json_result
+    
+    dealer_name = None
+    for dealer in dealers:
+        dealer_doc = dealer
+        if dealer_doc.get("id") == dealer_id:
+            dealer_name = dealer_doc.get("full_name")
+              # Break the loop once the matching dealer is found
+
+    results = []
+    cars = CarModel.objects.order_by('-name')[:10]
+    for car in cars:
+        if car.dealer_id == dealer_id:
+            car_obj = CarData(name=car.name, car_maker=car.car_maker, year=car.year, dealer_name=dealer_name)
+            results.append(car_obj)
+        else:
+            continue
 
     return results
 

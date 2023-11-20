@@ -46,47 +46,54 @@
     </nav>
 
     <!-- Stylize review form --> 
+    <div class= "container">
+        <form action="{% url 'djangoapp:add_review' dealer_id %}" method="post">
+            {% csrf_token %}
+            {% for car in cars %}
+                <h2>Add a review about {{ car.dealer_name }} </h2>
+                
+                <!-- Textarea for Review Content -->
+                <div class="form-group">
+                    <label for="content">Enter the review content:</label>
+                    <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
+                </div>
 
-    <form action="{% url 'djangoapp:add_review' dealer_id %}" method="post">
-        {% csrf_token %}
+                <!-- Checkbox for Purchase Confirmation -->
+                <div class="form-group form-check">
+                    
+                    <input type="checkbox" class="form-check-input" id="purchasecheck" name="purchasecheck">
+                    <label class="form-check-label" for="purchasecheck">Has purchased the car from {{ car.dealer_name }} </label>
+                </div>
 
-        <!-- Textarea for Review Content -->
-        <div class="form-group">
-            <label for="content">Enter the review content:</label>
-            <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
-        </div>
+                <!-- Dropdown for Car Selection -->
+                <div class="form-group">
+                    <label for="car">Select your car (model-make-year):</label>
+                    <select name="car" id="car" class="form-select" required>
+                        
+                        <option value="{{ car.id }}">{{ car.name }}-{{ car.car_maker }}-{{ car.year }}</option>
+                        
+                    </select>
+                </div>
 
-        <!-- Checkbox for Purchase Confirmation -->
-        <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" id="purchasecheck" name="purchasecheck">
-            <label class="form-check-label" for="purchasecheck">Has purchased the car from </label>
-        </div>
+                <!-- Date Input for Purchase Date -->
+                <div class="form-group">
+                    <label for="purchasedate">Select your Purchase Date:</label>
+                    <input class="date-own form-control" type="text" name="purchasedate" id="purchasedate">
+                </div>
 
-        <!-- Dropdown for Car Selection -->
-        <div class="form-group">
-            <label for="car">Select your car (model-make-year):</label>
-            <select name="car" id="car" class="form-select" required>
-                {% for car in cars %}
-                    <option value="{{ car.id }}">{{ car.name }}-{{ car.make.name }}-{{ car.year|date:"Y" }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <!-- Date Input for Purchase Date -->
-        <div class="form-group">
-            <label for="purchasedate">Select your Purchase Date:</label>
-            <input class="date-own form-control" type="text" name="purchasedate" id="purchasedate">
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Submit Review</button>
-    </form>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            {% endfor %}
+        </form>
+    </div>
 
     <!-- Datepicker Script -->
     <script type="text/javascript">
-        $('.date-own').datepicker({
-            format: 'mm/dd/yyyy'
-        });
+        $(document).ready(function(){
+            $('.date-own').datepicker({
+                format: 'mm/dd/yyyy'
+                });
+            });
     </script>
     <!-- Include other necessary scripts like jQuery for the datepicker -->
 
