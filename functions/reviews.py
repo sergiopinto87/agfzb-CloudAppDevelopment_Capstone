@@ -4,9 +4,9 @@ from flask import Flask, jsonify, request
 import atexit
 
 #Add your Cloudant service credentials here
-cloudant_username = 'e6e4172f-40ce-4983-b95e-dafcdf47019e-bluemix'
-cloudant_api_key = 'xK2-SbF9cArNQOnJdufIAKbTGoF6U2U2RM8GCS1RTwOw'
-cloudant_url = 'https://e6e4172f-40ce-4983-b95e-dafcdf47019e-bluemix.cloudantnosqldb.appdomain.cloud'
+cloudant_username = "e6e4172f-40ce-4983-b95e-dafcdf47019e-bluemix"
+cloudant_api_key = "xK2-SbF9cArNQOnJdufIAKbTGoF6U2U2RM8GCS1RTwOw"
+cloudant_url = "https://e6e4172f-40ce-4983-b95e-dafcdf47019e-bluemix.cloudantnosqldb.appdomain.cloud"
 client = Cloudant.iam(cloudant_username, cloudant_api_key, connect=True, url=cloudant_url)
 
 session = client.session()
@@ -51,20 +51,24 @@ def get():
 
 @app.route('/reviews/post', methods=['POST'])
 def post():
-    if not request.json:
-        abort(400, description='Invalid JSON data')
-    
-    # Extract review data from the request JSON
-    review_data = request.json
+    if not request.is_json:
+        logging.error("Invalid or missing JSON data in request")
+        abort(400, description='Invalid or missing JSON data')
 
-    # Validate that the required fields are present in the review data
+    review_data = request.get_json()
+
     required_fields = ['name', 'dealership', 'review', 'purchase', 'purchase_date', 'car_make', 'car_model', 'car_year']
     for field in required_fields:
         if field not in review_data:
+            logging.error(f"Missing required field: {field}")
             abort(400, description=f'Missing required field: {field}')
 
     # Save the review data as a new document in the Cloudant database
-    db.create_document(review_data)
+    try:
+        db.create_document(review_data)
+    except Exception as e:
+        logging.error(f"Error in saving document: {e}")
+        abort(500, description='Error in saving document')
 
     return jsonify({"message": "Review posted successfully"}), 201
 

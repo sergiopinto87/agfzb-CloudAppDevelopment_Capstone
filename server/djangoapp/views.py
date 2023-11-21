@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
+#from .models import ReviewData
 from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, post_request, get_cars
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -123,35 +123,42 @@ def add_review(request, dealer_id):
 
         elif request.method == "POST":
             #try:
-                car_make = request.POST.get("car_make")
-                car_model = request.POST.get("car_model")
+
+                #"time": datetime.datetime.utcnow().isoformat(),
+                name = request.POST.get("user")
+                dealership = dealer_id
+                review = request.POST.get("content")
+                purchase = request.POST.get("purchasecheck") == "on"
+                purchase_date = request.POST.get("purchasedate")
+                car_make = request.POST.get("car_maker")
+                car_model = request.POST.get("car_name")
                 car_year = request.POST.get("car_year")
 
-                review = {
-                    #"time": datetime.datetime.utcnow().isoformat(),
-                    "name": request.user.get_full_name(),  # Assuming get_full_name() method is available
-                    "dealership": dealer_id,
-                    "review": request.POST.get("content"),
-                    "purchase": request.POST.get("purchasecheck") == "on",
-                    "purchase_date": request.POST.get("purchasedate"),
+                review_dict = {
+                    "name": name,
+                    "dealership": dealership,
+                    "review": review,
+                    "purchase": purchase,
+                    "purchase_date": purchase_date,
                     "car_make": car_make,
                     "car_model": car_model,
-                    "car_year": car_year
+                    "car_year": car_year,
                 }
 
-                json_payload = {"review": review}
+                json_payload = {"reviews": review_dict}
+
                 url = "https://serrique-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
                 response, success = post_request(url, json_payload, dealer_id=dealer_id)
                 # Optionally handle the response here
                 
                 if success:
-                    # Handle a successful submission
                     messages.success(request, response)
+                    return redirect("djangoapp/dealer_details.html", dealer_id=dealer_id)  # Redirect to a success page
                 else:
-                    # Handle a failed submission
                     messages.error(request, response)
-
-                return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
-
+                    return redirect("djangoapp/add_review.html", dealer_id=dealer_id)
+                    #return render(request, "djangoapp/add_review.html", {"error": response, "dealer_id": dealer_id})
         else:
             return HttpResponse("User is not authenticated")
+    else:
+        return redirect("djangoapp/login.html")  # Redirect to login page if not authenticated
