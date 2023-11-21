@@ -18,40 +18,23 @@
 
     <!-- Navigation bar -->
     <nav class="navbar navbar-light bg-light">
-        <a href="about">About us</a>
-        <a href="contact">Contact us</a>
+
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Home</a>
+                <a class="navbar-brand" href="{% url 'djangoapp:about' %}">About us</a>
+                <a class="navbar-brand" href="{% url 'djangoapp:contact' %}">Contact us</a>
             </div>
-            <ul class="nav navbar-nav navbar-right">
-                {% if user.is_authenticated %}
-                <li>
-                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
-                    <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
-                </li>
-                {% else %}
-                <li>
-                    <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Username" name="username" >
-                            <input type="password" class="form-control" placeholder="Password" name="psw" >
-                            <button class="btn btn-primary" type="submit">Login</button>
-                            <a class="btn btn-link" href="{% url 'djangoapp:signup' %}">Sign Up</a>
-                        </div>
-                    </form>
-                </li>
-                {% endif %}
-            </ul>
+            
         </div>
     </nav>
+
 
     <!-- Stylize Login form -->
     <form action="{% url 'djangoapp:login' %}" method="post">
         {% csrf_token %}
         <div class="container"> <!--Style root div with .container class -->
-            <h1>Login</h1>
+            <h2>Login</h2>
             <div class="form-group"> <!--Style second div with .form-group class -->
               <label for="username"><b>User Name</b></label>
               <input id="username" class = "form-control" type="text" placeholder="Enter User Name: " name="username" required> <!--Style input with .form-control class -->
@@ -63,6 +46,7 @@
                 {{ message }}
               </div>
             {% endif %}
+            <a class="btn btn-link" href="{% url 'djangoapp:signup' %}">Sign Up</a>
             <button class="btn btn-primary" type="submit">Login</button> <!--Style button with .btn and .btn-primary class -->
         </div>
     </form>
