@@ -107,8 +107,25 @@
     <!-- Datepicker Script -->
     {{ form.date }}
     <script type="text/javascript">
-        $('.purchasedate').datepicker({
-           format: 'mm/dd/yyyy'
+        document.addEventListener("DOMContentLoaded", function() {
+            var form = document.querySelector("form");
+            
+            form.addEventListener("submit", function(event) {
+                var dateInput = document.getElementById("purchasedate");
+                var dateValue = new Date(dateInput.value);
+
+                if (!isNaN(dateValue)) {
+                    var formattedDate = (dateValue.getMonth() + 1) + '/' + dateValue.getDate() + '/' + dateValue.getFullYear();
+                    // Create a hidden input to hold the formatted date
+                    var hiddenInput = document.createElement("input");
+                    hiddenInput.setAttribute("type", "hidden");
+                    hiddenInput.setAttribute("name", "formattedPurchasedate");
+                    hiddenInput.setAttribute("value", formattedDate);
+                    
+                    // Append the hidden input to the form
+                    form.appendChild(hiddenInput);
+                }
+            });
         });
     
         function updateCarDetails() {

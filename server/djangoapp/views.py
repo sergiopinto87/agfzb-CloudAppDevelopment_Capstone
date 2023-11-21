@@ -82,7 +82,7 @@ def registration_request(request):
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
     if request.method == "GET":
-        url = "https://serrique-3000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        url = "https://serrique-3000.theiadocker-2-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         # Concat all dealer's short name
@@ -98,7 +98,7 @@ def get_dealerships(request):
 # ...
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
-        url = "https://serrique-3001.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/get"
+        url = "https://serrique-3001.theiadocker-2-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/get"
         # Get reviews from the URL
         reviews = get_dealer_by_id_from_cf(url, dealer_id)
         # Concat all reviews's id
@@ -117,7 +117,7 @@ def add_review(request, dealer_id):
     if request.user.is_authenticated:
         if request.method == "GET":
             # Fetch cars based on dealer_id
-            url = "https://serrique-3000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+            url = "https://serrique-3000.theiadocker-2-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
             cars = get_cars(dealer_id, url)  # Implement this function
             return render(request, "djangoapp/add_review.html", {"cars": cars, "dealer_id": dealer_id})
 
@@ -125,16 +125,21 @@ def add_review(request, dealer_id):
             #try:
 
                 #"time": datetime.datetime.utcnow().isoformat(),
+                id = ""
                 name = request.POST.get("user")
                 dealership = dealer_id
                 review = request.POST.get("content")
                 purchase = request.POST.get("purchasecheck") == "on"
-                purchase_date = request.POST.get("purchasedate")
+                temp_date = request.POST.get("purchasedate")
+                date_obj = datetime.strptime(temp_date, '%Y-%m-%d')
+                purchase_date = date_obj.strftime('%m/%d/%Y')
                 car_make = request.POST.get("car_maker")
                 car_model = request.POST.get("car_name")
-                car_year = request.POST.get("car_year")
+                car_year_str = request.POST.get("car_year")
+                car_year = int(car_year_str)
 
-                review_dict = {
+                json_payload = {
+                    "id": id,
                     "name": name,
                     "dealership": dealership,
                     "review": review,
@@ -145,20 +150,13 @@ def add_review(request, dealer_id):
                     "car_year": car_year,
                 }
 
-                json_payload = {"reviews": review_dict}
-
-                url = "https://serrique-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/reviews/post"
-                response, success = post_request(url, json_payload, dealer_id=dealer_id)
+                
+                url = "https://serrique-5000.theiadocker-2-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review"
+                response = post_request(url, json_payload)
                 # Optionally handle the response here
                 
-                if success:
-                    messages.success(request, response)
-                    return redirect("djangoapp/dealer_details.html", dealer_id=dealer_id)  # Redirect to a success page
-                else:
-                    messages.error(request, response)
-                    return redirect("djangoapp/add_review.html", dealer_id=dealer_id)
-                    #return render(request, "djangoapp/add_review.html", {"error": response, "dealer_id": dealer_id})
-        else:
-            return HttpResponse("User is not authenticated")
+                return redirect('djangoapp:dealer_details', dealer_id)  # Redirect to a success page
+                
     else:
-        return redirect("djangoapp/login.html")  # Redirect to login page if not authenticated
+        return HttpResponse("User is not authenticated")
+
